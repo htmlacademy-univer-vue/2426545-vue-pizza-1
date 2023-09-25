@@ -39,17 +39,19 @@ const getIngredientsNameFromImg = (imgPath) => {
           <div class="sheet">
             <h2 class="title title--small sheet__title">Выберите тесто</h2>
 
-            <div class="sheet__content dough">
+            <div
+              v-for="dough in doughs"
+              :key="dough.id"
+              class="sheet__content dough"
+            >
               <label
-                v-for="dough in doughs"
-                :key="dough.id"
                 class="dough__input--{{ getDoughType(dough.id) }} dough__input"
               >
                 <input
                   type="radio"
                   name="dought"
                   value="{{ getDoughType(dough.id) }}"
-                  class="visually-hidden"
+                  class=""
                 />
                 <b>{{ dough.name }}</b>
                 <span>Из твердых сортов пшеницы</span>
@@ -72,7 +74,7 @@ const getIngredientsNameFromImg = (imgPath) => {
                   type="radio"
                   name="diameter"
                   value="{{ getPizzaSize(size.name) }}"
-                  class="visually-hidden"
+                  class=""
                 />
                 <span>{{ size.name }}</span>
               </label>
