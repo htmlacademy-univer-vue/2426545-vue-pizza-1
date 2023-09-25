@@ -4,7 +4,7 @@ import AppHeader from "./AppHeader.vue";
 
 export default defineComponent({
   name: "AppLayout",
-  components: {AppHeader},
+  components: { AppHeader },
 });
 </script>
 
