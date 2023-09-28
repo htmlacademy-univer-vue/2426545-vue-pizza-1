@@ -2,31 +2,9 @@
 import doughs from "../mocks/dough.json";
 import pizzaSizes from "../mocks/sizes.json";
 import ingredients from "../mocks/ingredients.json";
-// eslint-disable-next-line no-unused-vars
-const getDoughType = (name) => {
-  switch (name) {
-    case "Тонкое":
-      return "light";
-    case "Толстое":
-      return "large";
-  }
-};
-// eslint-disable-next-line no-unused-vars
-const getPizzaSize = (name) => {
-  switch (name) {
-    case "23 см":
-      return "small";
-    case "32 см":
-      return "normal";
-    case "45 см":
-      return "big";
-  }
-};
-
-// eslint-disable-next-line no-unused-vars
-const getIngredientsNameFromImg = (imgPath) => {
-  return imgPath.split("/").pop().split(".")[0];
-};
+import { getDoughType } from "@/mocks/helper"
+import { getPizzaSize } from "@/mocks/helper"
+import { getIngredientsNameFromImg } from "@/mocks/helper"
 </script>
 
 <template>
@@ -174,4 +152,6 @@ const getIngredientsNameFromImg = (imgPath) => {
   </main>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+
+</style>
