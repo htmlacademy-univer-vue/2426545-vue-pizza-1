@@ -14,7 +14,7 @@
 <!--      <b>«Vue.js для опытных разработчиков».</b>-->
 <!--    </p>-->
 <!--  </div>-->
-  <router-view></router-view>
+<app-layout></app-layout>
 </template>
 
 <style lang="scss">
@@ -65,3 +65,6 @@ body {
   }
 }
 </style>
+<script setup>
+import AppLayout from "./layouts/AppLayout.vue";
+</script>
