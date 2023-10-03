@@ -18,7 +18,8 @@
 </template>
 
 <style lang="scss">
-@import "./assets/scss/app.scss";
+//@import "@/assets/scss/app.scss";
+@import "@/assets/scss/style.scss";
 body {
   justify-content: center;
   align-items: center;

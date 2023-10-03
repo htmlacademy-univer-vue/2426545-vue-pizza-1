@@ -23,12 +23,12 @@ import { getIngredientsNameFromImg } from "@/mocks/helper"
               class="sheet__content dough"
             >
               <label
-                class="dough__input--{{ getDoughType(dough.id) }} dough__input"
+                :class="['dough__input--'+getDoughType(dough.name), 'dough__input']"
               >
                 <input
                   type="radio"
-                  name="dought"
-                  value="{{ getDoughType(dough.id) }}"
+                  name="dough"
+                  :value="getDoughType(dough.name)"
                   class=""
                 />
                 <b>{{ dough.name }}</b>
@@ -46,12 +46,12 @@ import { getIngredientsNameFromImg } from "@/mocks/helper"
               <label
                 v-for="size in pizzaSizes"
                 :key="size.id"
-                class="diameter__input diameter__input--{{ getPizzaSize(size.name) }}"
+                :class="['diameter__input', 'diameter__input--'+getPizzaSize(size.name)]"
               >
                 <input
                   type="radio"
                   name="diameter"
-                  value="{{ getPizzaSize(size.name) }}"
+                  :value="getPizzaSize(size.name)"
                   class=""
                 />
                 <span>{{ size.name }}</span>
@@ -90,7 +90,7 @@ import { getIngredientsNameFromImg } from "@/mocks/helper"
                     class="ingredients__item"
                   >
                     <span
-                      class="filling filling--{{ getIngredientsNameFromImg(ingredient.image)}}"
+                      :class="['filling', 'filling--'+getIngredientsNameFromImg(ingredient.image)]"
                       >{{ ingredient.name }}</span
                     >
 

@@ -11,7 +11,7 @@ export default defineComponent({
     <div class="header__logo">
       <a href="index.html" class="logo">
         <img
-          src="img/logo.svg"
+          src="../assets/img/logo.svg"
           alt="V!U!E! Pizza logo"
           width="90"
           height="40"
