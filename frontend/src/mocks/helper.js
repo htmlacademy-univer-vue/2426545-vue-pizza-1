@@ -41,10 +41,6 @@ export const getDoughSizeForConstructor = (dough) => {
   }
 };
 
-export const jsonSerializeIngredients = (ingredients) => {
-  return JSON.parse(JSON.stringify(ingredients));
-};
-
 export const getIngredientAmountClass = (countValue) => {
   let count = "";
   switch (countValue) {

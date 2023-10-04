@@ -2,7 +2,7 @@
 import doughs from "../mocks/dough.json";
 import sauces from "../mocks/sauces.json";
 import pizzaSizes from "../mocks/sizes.json";
-import ingredients from "../mocks/ingredients.json";
+import ingredientsJson from "../mocks/ingredients.json";
 import {
   getDoughType,
   getPizzaSize,
@@ -15,26 +15,31 @@ import { ref } from "vue";
 import PizzaConstructor from "@/modules/constructor/PizzaConstructor.vue";
 import IngredientsPicker from "@/modules/constructor/IngredientsPicker.vue";
 import AppDrop from "@/common/components/AppDrop.vue";
+import {MAX_INGREDIENTS} from "@/common/constants";
 
 const pizza = ref({
   dough: getDoughType(doughs[0].name),
   size: getPizzaSize(pizzaSizes[0].name),
-  ingredients: {},
+  ingredients: ingredientsJson.reduce(function (accumulator, current) {
+    accumulator[current.id] = { ...current, count: 0 };
+    return accumulator;
+  }, {}),
   sauce: getSauceName(sauces[0].name),
 });
 
 function updatePizzaIngredients(ingredientData) {
-  if (ingredientData.count === 0) {
-    delete pizza.value.ingredients[ingredientData.ingredient.id];
-  } else if (pizza.value.ingredients[ingredientData.ingredient.id]) {
-    pizza.value.ingredients[ingredientData.ingredient.id].count = ingredientData.count;
-  } else {
-    pizza.value.ingredients[ingredientData.ingredient.id] = ingredientData;
+  if (pizza.value.ingredients[ingredientData.id]) {
+    pizza.value.ingredients[ingredientData.id].count = ingredientData.count;
   }
 }
 
-function onDrop({ dataTransfer }) {
-  console.log(dataTransfer);
+function onDrop(dataTransfer) {
+  let ingredientData = JSON.parse(dataTransfer.payload)
+  if (pizza.value.ingredients[ingredientData.id]) {
+    if (pizza.value.ingredients[ingredientData.id].count !== MAX_INGREDIENTS) {
+      pizza.value.ingredients[ingredientData.id].count += 1
+    }
+  }
 }
 </script>
 
@@ -68,7 +73,7 @@ function onDrop({ dataTransfer }) {
 
                 <ul class="ingredients__list">
                   <ingredients-picker
-                    :ingredients="ingredients"
+                    :ingredients="pizza.ingredients"
                     @updatePizzaIngredients="updatePizzaIngredients"
                   ></ingredients-picker>
                 </ul>

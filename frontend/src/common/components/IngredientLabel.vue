@@ -1,8 +1,9 @@
 <script setup>
 import { getIngredientsNameFromImg } from "@/mocks/helper";
-import { ref } from "vue";
+import {computed, ref} from "vue";
 import CounterInput from "@/common/components/CounterInput.vue";
 import AppDrag from "@/common/components/AppDrag.vue";
+import {MAX_INGREDIENTS} from "@/common/constants";
 
 const props = defineProps({
   modelValue: {
@@ -11,22 +12,20 @@ const props = defineProps({
   },
 });
 
-const count = ref(0);
+const ingredient = ref(props.modelValue)
 
 const emit = defineEmits(["updateIngredients"]);
 
 function changeCount(newCount) {
   if (newCount < 0) {
-    count.value = 0;
+    ingredient.value.count = 0;
   } else if (newCount > 3) {
-    count.value = 3;
+    ingredient.value.count = 3;
   } else {
-    count.value = newCount;
+    ingredient.value.count = newCount;
   }
-  emit("updateIngredients", {
-    ingredient: props.modelValue,
-    count: count.value,
-  });
+  emit("updateIngredients",  {...props.modelValue, count: ingredient.value.count},
+  );
 }
 
 const dataJson = { payload: JSON.stringify(props.modelValue) };
@@ -34,16 +33,20 @@ const dataJson = { payload: JSON.stringify(props.modelValue) };
 
 <template>
   <li class="ingredients__item">
-    <app-drag :transfer-data="dataJson">
+    <app-drag
+        :draggable="ingredient.count < MAX_INGREDIENTS"
+        :transfer-data="dataJson">
       <span
         :class="[
           'filling',
           'filling--' + getIngredientsNameFromImg(props.modelValue.image),
         ]"
-        >{{ props.modelValue.name }}</span
+        >
+        {{ props.modelValue.name }}
+      </span
       >
     </app-drag>
-    <counter-input :value="count" @update:value="changeCount" />
+    <counter-input :value="ingredient.count" @update:value="changeCount" />
   </li>
 </template>
 

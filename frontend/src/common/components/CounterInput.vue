@@ -1,23 +1,23 @@
 <script setup>
 
-import {ref} from "vue";
+import {ref, watch} from "vue";
+import {MAX_INGREDIENTS} from "@/common/constants";
 
 const props = defineProps({
   value: {
     type: Number,
     required: true,
   },
-  max: {
-    type: Number,
-    default: 3,
-  }
 });
 const emit = defineEmits(["update:value"]);
 const count = ref(props.value);
-const max = ref(props.max);
+
+watch(() => props.value, (newValue) => {
+  count.value = newValue;
+});
 
 function increment() {
-  if (count.value < max.value) {
+  if (count.value < MAX_INGREDIENTS) {
     count.value++;
     emit("update:value", count.value);
   }
@@ -31,8 +31,8 @@ function decrement() {
 }
 function updateFromInput(event) {
   const newCount = parseInt(event.target.value)
-  if (newCount > max.value) {
-    count.value = max.value;
+  if (newCount > MAX_INGREDIENTS) {
+    count.value = MAX_INGREDIENTS;
   } else if (newCount < 0) {
     count.value = 0;
   } else {
@@ -62,7 +62,7 @@ function updateFromInput(event) {
     <button
       type="button"
       class="counter__button counter__button--plus"
-      :disabled="count === max"
+      :disabled="count === MAX_INGREDIENTS"
       @click="increment"
     >
       <span class="visually-hidden">Больше</span>

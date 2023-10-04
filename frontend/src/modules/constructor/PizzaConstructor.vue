@@ -44,10 +44,11 @@ watch(
       <div class="pizza__wrapper">
         <div
           v-for="item in ingredients"
-          :key="item.ingredient.id"
+          v-show="item.count > 0"
+          :key="item.id"
           :class="[
             'pizza__filling',
-            'pizza__filling--' + getIngredientsNameFromImg(item.ingredient.image),
+            'pizza__filling--' + getIngredientsNameFromImg(item.image),
             getIngredientAmountClass(item.count),
           ]"
         ></div>

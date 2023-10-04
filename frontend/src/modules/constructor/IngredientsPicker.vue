@@ -1,12 +1,15 @@
 <script setup>
 import IngredientLabel from "@/common/components/IngredientLabel.vue";
+import {ref} from "vue";
 
 const props = defineProps({
   ingredients: {
-    type: Array,
+    type: Object,
     required: true,
   },
 });
+
+const ingredients = ref(props.ingredients)
 
 const emit = defineEmits(["updatePizzaIngredients"]);
 function changeIngredient(ingredientData) {
@@ -16,8 +19,8 @@ function changeIngredient(ingredientData) {
 
 <template>
   <IngredientLabel
-    v-for="ingredient in props.ingredients"
-    :key="ingredient.id"
+    v-for="(ingredient,id) in ingredients"
+    :key="id"
     :model-value="ingredient"
     @updateIngredients="changeIngredient"
   />
