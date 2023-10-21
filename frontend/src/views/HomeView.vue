@@ -1,10 +1,46 @@
 <script setup>
 import doughs from "../mocks/dough.json";
+import sauces from "../mocks/sauces.json";
 import pizzaSizes from "../mocks/sizes.json";
-import ingredients from "../mocks/ingredients.json";
-import { getDoughType } from "@/mocks/helper"
-import { getPizzaSize } from "@/mocks/helper"
-import { getIngredientsNameFromImg } from "@/mocks/helper"
+import ingredientsJson from "../mocks/ingredients.json";
+import {
+  getDoughType,
+  getPizzaSize,
+  getSauceName,
+} from "@/mocks/helper";
+import DoughPicker from "@/modules/constructor/DoughPicker.vue";
+import SizePicker from "@/modules/constructor/SizePicker.vue";
+import SaucePicker from "@/modules/constructor/SaucePicker.vue";
+import { ref } from "vue";
+import PizzaConstructor from "@/modules/constructor/PizzaConstructor.vue";
+import IngredientsPicker from "@/modules/constructor/IngredientsPicker.vue";
+import AppDrop from "@/common/components/AppDrop.vue";
+import {MAX_INGREDIENTS} from "@/common/constants";
+
+const pizza = ref({
+  dough: getDoughType(doughs[0].name),
+  size: getPizzaSize(pizzaSizes[0].name),
+  ingredients: ingredientsJson.reduce(function (accumulator, current) {
+    accumulator[current.id] = { ...current, count: 0 };
+    return accumulator;
+  }, {}),
+  sauce: getSauceName(sauces[0].name),
+});
+
+function updatePizzaIngredients(ingredientData) {
+  if (pizza.value.ingredients[ingredientData.id]) {
+    pizza.value.ingredients[ingredientData.id].count = ingredientData.count;
+  }
+}
+
+function onDrop(dataTransfer) {
+  let ingredientData = JSON.parse(dataTransfer.payload)
+  if (pizza.value.ingredients[ingredientData.id]) {
+    if (pizza.value.ingredients[ingredientData.id].count !== MAX_INGREDIENTS) {
+      pizza.value.ingredients[ingredientData.id].count += 1
+    }
+  }
+}
 </script>
 
 <template>
@@ -13,52 +49,12 @@ import { getIngredientsNameFromImg } from "@/mocks/helper"
       <div class="content__wrapper">
         <h1 class="title title--big">Конструктор пиццы</h1>
 
-        <div class="content__dough">
-          <div class="sheet">
-            <h2 class="title title--small sheet__title">Выберите тесто</h2>
+        <dough-picker v-model="pizza.dough" :doughs="doughs"></dough-picker>
 
-            <div
-              v-for="dough in doughs"
-              :key="dough.id"
-              class="sheet__content dough"
-            >
-              <label
-                :class="['dough__input--'+getDoughType(dough.name), 'dough__input']"
-              >
-                <input
-                  type="radio"
-                  name="dough"
-                  :value="getDoughType(dough.name)"
-                  class=""
-                />
-                <b>{{ dough.name }}</b>
-                <span>Из твердых сортов пшеницы</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="content__diameter">
-          <div class="sheet">
-            <h2 class="title title--small sheet__title">Выберите размер</h2>
-
-            <div class="sheet__content diameter">
-              <label
-                v-for="size in pizzaSizes"
-                :key="size.id"
-                :class="['diameter__input', 'diameter__input--'+getPizzaSize(size.name)]"
-              >
-                <input
-                  type="radio"
-                  name="diameter"
-                  :value="getPizzaSize(size.name)"
-                  class=""
-                />
-                <span>{{ size.name }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
+        <size-picker
+          v-model="pizza.size"
+          :pizza-sizes="pizzaSizes"
+        ></size-picker>
 
         <div class="content__ingredients">
           <div class="sheet">
@@ -67,55 +63,19 @@ import { getIngredientsNameFromImg } from "@/mocks/helper"
             </h2>
 
             <div class="sheet__content ingredients">
-              <div class="ingredients__sauce">
-                <p>Основной соус:</p>
-
-                <label class="radio ingredients__input">
-                  <input type="radio" name="sauce" value="tomato" checked />
-                  <span>Томатный</span>
-                </label>
-                <label class="radio ingredients__input">
-                  <input type="radio" name="sauce" value="creamy" />
-                  <span>Сливочный</span>
-                </label>
-              </div>
+              <sauce-picker
+                v-model="pizza.sauce"
+                :sauces="sauces"
+              ></sauce-picker>
 
               <div class="ingredients__filling">
                 <p>Начинка:</p>
 
                 <ul class="ingredients__list">
-                  <li
-                    v-for="ingredient in ingredients"
-                    :key="ingredient.id"
-                    class="ingredients__item"
-                  >
-                    <span
-                      :class="['filling', 'filling--'+getIngredientsNameFromImg(ingredient.image)]"
-                      >{{ ingredient.name }}</span
-                    >
-
-                    <div class="counter counter--orange ingredients__counter">
-                      <button
-                        type="button"
-                        class="counter__button counter__button--minus"
-                        disabled
-                      >
-                        <span class="visually-hidden">Меньше</span>
-                      </button>
-                      <input
-                        type="text"
-                        name="counter"
-                        class="counter__input"
-                        value="0"
-                      />
-                      <button
-                        type="button"
-                        class="counter__button counter__button--plus"
-                      >
-                        <span class="visually-hidden">Больше</span>
-                      </button>
-                    </div>
-                  </li>
+                  <ingredients-picker
+                    :ingredients="pizza.ingredients"
+                    @updatePizzaIngredients="updatePizzaIngredients"
+                  ></ingredients-picker>
                 </ul>
               </div>
             </div>
@@ -131,16 +91,9 @@ import { getIngredientsNameFromImg } from "@/mocks/helper"
               placeholder="Введите название пиццы"
             />
           </label>
-
-          <div class="content__constructor">
-            <div class="pizza pizza--foundation--big-tomato">
-              <div class="pizza__wrapper">
-                <div class="pizza__filling pizza__filling--ananas"></div>
-                <div class="pizza__filling pizza__filling--bacon"></div>
-                <div class="pizza__filling pizza__filling--cheddar"></div>
-              </div>
-            </div>
-          </div>
+          <app-drop @drop="onDrop" @dragover.prevent @dragenter.prevent>
+            <pizza-constructor v-model="pizza"></pizza-constructor>
+          </app-drop>
 
           <div class="content__result">
             <p>Итого: 0 ₽</p>
@@ -152,6 +105,4 @@ import { getIngredientsNameFromImg } from "@/mocks/helper"
   </main>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>
