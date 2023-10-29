@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1,
+        "orderNumber": 123456,
+        "address": "г. Москва, ул. Пушкина, д. 1",
+        "sum": 200,
+        "ordersPizzas": [
+            {
+                "id": 5,
+                "name": "Маргарита",
+                "size": "23 см",
+                "dough": "тонкое",
+                "sauce": "сырный",
+                "ingredients": "помидоры, моцарелла",
+                "image": "product.svg"
+            }
+        ],
+        "additional" : [
+            {
+                "id": 1,
+                "name": "Кола 0.5л",
+                "image": "cola.svg",
+                "count": 1,
+                "price": 56
+            },
+            {
+                "id": 2,
+                "name": "Острый соус",
+                "image": "sauce.svg",
+                "count": 2,
+                "price": 30
+            }
+        ]
+    }
+]
