@@ -73,7 +73,7 @@ function updateFromInput(event) {
       :class="[
         'counter__button',
         'counter__button--plus',
-        btnColorStyle === 'constructor' ? 'counter__button--orange' : '',
+        btnColorStyle === 'order' ? 'counter__button--orange' : '',
       ]"
       :disabled="count === MAX_INGREDIENTS"
       @click="increment"
