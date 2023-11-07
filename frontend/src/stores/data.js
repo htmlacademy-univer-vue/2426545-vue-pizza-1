@@ -16,6 +16,9 @@ export const useDataStore = defineStore("data", {
     getIngredients: (state) => state.ingredients,
     getMisc: (state) => state.misc,
     getSauces: (state) => state.sauces,
+    getItemById: (state) => (id, type) => {
+      return state[type].find((item) => item.id === id);
+    },
   },
   actions: {},
 });
