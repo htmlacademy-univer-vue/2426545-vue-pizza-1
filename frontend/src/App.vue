@@ -6,6 +6,12 @@
 
 <script setup>
 import AppLayout from "./layouts/AppLayout.vue";
+import { useDataStore } from "./stores";
+
+const dataStore = useDataStore();
+
+void dataStore.fetchData();
+
 </script>
 <style lang="scss">
 @import "@/assets/scss/app.scss";

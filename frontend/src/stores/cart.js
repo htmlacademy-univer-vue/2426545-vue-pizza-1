@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { useDataStore } from "./data";
 
-const dataStore = useDataStore();
 export const useCartStore = defineStore("cart", {
   state: () => ({
     orders: [
@@ -53,6 +52,7 @@ export const useCartStore = defineStore("cart", {
     getOrderById: (state) => (id) =>
       state.orders.find((order) => order.id === id),
     getOrderPrice: (state) => (id) => {
+      const dataStore = useDataStore();
       const order = state.orders.find((order) => order.id === id);
       let price = 0;
       for (const pizza of order.orderPizzas) {
@@ -81,5 +81,56 @@ export const useCartStore = defineStore("cart", {
       // TODO add validation
       this.orders.push(order);
     },
+    deleteOrder(id) {
+      this.orders = this.orders.filter((order) => order.id !== id);
+    },
+    clearOrders() {
+      this.orders = [];
+    },
+    addPizzaToOrder(orderId, pizza) {
+      const order = this.orders.find((order) => order.id === orderId);
+      pizza = order.orderPizzas.find(
+        (orderPizza) => orderPizza.id === pizza.id
+      );
+
+      if (!pizza) {
+        order.orderPizzas.push(pizza);
+      } else {
+        pizza.quantity += 1;
+      }
+    },
+    deletePizzaFromOrder(orderId, pizzaId) {
+      const order = this.orders.find((order) => order.id === orderId);
+      order.orderPizzas = order.orderPizzas.filter(
+        (pizza) => pizza.id !== pizzaId
+      );
+    },
+    addMiscToOrder(orderId, misc) {
+      const order = this.orders.find((order) => order.id === orderId);
+      misc = order.orderMisc.find((orderMisc) => orderMisc.id === misc.id);
+
+      if (!misc) {
+        order.orderMisc.push(misc);
+      } else {
+        misc.quantity += 1;
+      }
+    },
+    deleteMiscFromOrder(orderId, miscId) {
+      const order = this.orders.find((order) => order.id === orderId);
+      order.orderMisc = order.orderMisc.filter((misc) => misc.id !== miscId);
+    },
+    addAddressToOrder(orderId, address) {
+      const order = this.orders.find((order) => order.id === orderId);
+      order.orderAddress = address;
+    },
+    deleteAddressFromOrder(orderId) {
+      const order = this.orders.find((order) => order.id === orderId);
+      order.orderAddress = {};
+    },
+    addOnePizzaToOrder(orderId, pizzaId) {
+      const order = this.orders.find((order) => order.id === orderId);
+      const pizza = order.orderPizzas.find((pizza) => pizza.id === pizzaId);
+      pizza.quantity += 1;
+    }
   },
 });
