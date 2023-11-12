@@ -27,7 +27,12 @@ export const useDataStore = defineStore("data", {
       if (!this.doughs || !this.sizes || !this.ingredients || !this.misc || !this.sauces) {
         this.doughs = getData("dough.json");
         this.sizes = getData("sizes.json");
-        this.ingredients = getData("ingredients.json");
+        this.ingredients = () => {
+          getData("ingredients.json").reduce(function (accumulator, current) {
+            accumulator[current.id] = { ...current, count: 0 };
+            return accumulator;
+          }, {});
+        };
         this.misc = getData("misc.json");
         this.sauces = getData("sauces.json");
       }

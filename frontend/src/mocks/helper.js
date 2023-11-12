@@ -18,6 +18,10 @@ export const getPizzaSize = (name) => {
   }
 };
 
+export const getIngredientNamesFromArray = (ingredients) => {
+  return ingredients.map((ingredient) => ingredient.name).join(", ");
+}
+
 // eslint-disable-next-line no-unused-vars
 export const getIngredientsNameFromImg = (imgPath) => {
   return imgPath.split("/").pop().split(".")[0];
@@ -34,9 +38,9 @@ export const getSauceName = (name) => {
 
 export const getDoughSizeForConstructor = (dough) => {
   switch (dough) {
-    case "light":
+    case "Тонкое":
       return "small";
-    case "large":
+    case "Толстое":
       return "big";
   }
 };

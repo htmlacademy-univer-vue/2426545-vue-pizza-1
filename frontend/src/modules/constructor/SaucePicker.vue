@@ -1,25 +1,23 @@
 <script setup>
 import { getSauceName } from "@/mocks/helper";
 import { computed, ref } from "vue";
-const props = defineProps({
-  sauces: {
-    type: Array,
-    required: true,
-  },
-  modelValue: {
-    type: String,
-    required: true,
-  },
-});
-const selectedSauce = ref(props.modelValue);
-const emit = defineEmits(["update:modelValue"]);
+import { useDataStore } from "@/stores";
+import { usePizzaStore } from "@/stores";
+
+const pizzaStore = usePizzaStore();
+const dataStore = useDataStore();
+
+const selectedSauce = ref(pizzaStore.getPizzaSauce);
+const sauces = dataStore.getSauces;
+
+
 function selectSauce(sauce) {
-  selectedSauce.value = sauce;
-  emit("update:modelValue", sauce);
+  selectedSauce.value = getSauceName(sauce.name);
+  pizzaStore.setSauceToPizza(sauce);
 }
 
 const isChecked = computed(() => {
-  return (sauceName) => sauceName === selectedSauce.value;
+  return (sauceName) => sauceName === selectedSauce.value.name;
 });
 </script>
 
@@ -34,11 +32,11 @@ const isChecked = computed(() => {
     >
       <input
         v-model="selectedSauce"
-        :checked="isChecked(getSauceName(sauce.name))"
+        :checked="isChecked(sauce.name)"
         type="radio"
         name="sauce"
         :value="getSauceName(sauce.name)"
-        @change="selectSauce(getSauceName(sauce.name))"
+        @change="selectSauce(sauce)"
       />
       <span>{{ sauce.name }}</span>
     </label>

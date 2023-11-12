@@ -1,36 +1,24 @@
 <script setup>
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import {
   getDoughSizeForConstructor,
   getIngredientAmountClass,
-  getIngredientsNameFromImg
+  getIngredientsNameFromImg, getSauceName
 } from "@/mocks/helper";
+import { usePizzaStore} from "@/stores";
+const pizzaStore = usePizzaStore();
 
-
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true,
-  },
-});
+const pizza = computed(() => pizzaStore.getPizza);
 
 // Создаем вычисляемые свойства для отслеживания изменений
-const selectedDough = computed(() =>
-  getDoughSizeForConstructor(props.modelValue.dough)
-);
-const selectedSauce = computed(() => props.modelValue.sauce);
+const selectedDough = computed( () => {
+  return getDoughSizeForConstructor(pizza.value.dough.name);
+});
 
-const ingredients = computed(() => props.modelValue.ingredients);
+const selectedSauce = computed( () => {
+  return getSauceName(pizza.value.sauce.name);
+});
 
-// Следим за изменениями modelValue и обновляем вычисляемые свойства
-watch(
-  () => props.modelValue,
-  (newModelValue) => {
-    selectedDough.value = getDoughSizeForConstructor(newModelValue.dough);
-    selectedSauce.value = newModelValue.sauce;
-    ingredients.value = newModelValue.ingredients;
-  }
-);
 </script>
 
 <template>
@@ -43,7 +31,7 @@ watch(
     >
       <div class="pizza__wrapper">
         <div
-          v-for="item in ingredients"
+          v-for="item in pizza.ingredients"
           v-show="item.count > 0"
           :key="item.id"
           :class="[

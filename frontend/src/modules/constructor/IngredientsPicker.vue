@@ -1,28 +1,21 @@
 <script setup>
 import IngredientLabel from "@/common/components/IngredientLabel.vue";
-import {ref} from "vue";
 
-const props = defineProps({
-  ingredients: {
-    type: Object,
-    required: true,
-  },
-});
 
-const ingredients = ref(props.ingredients)
+import { useDataStore } from "@/stores";
 
-const emit = defineEmits(["updatePizzaIngredients"]);
-function changeIngredient(ingredientData) {
-  emit("updatePizzaIngredients", ingredientData);
-}
+const dataStore = useDataStore();
+
+
+const ingredients = dataStore.getIngredients;
+
 </script>
 
 <template>
   <IngredientLabel
-    v-for="(ingredient,id) in ingredients"
+    v-for="(ingredient, id) in ingredients"
     :key="id"
     :model-value="ingredient"
-    @updateIngredients="changeIngredient"
   />
 </template>
 

@@ -1,12 +1,12 @@
-import { defineStore } from "pinia";
-
+import {defineStore} from "pinia";
+import {useDataStore} from "./data";
 export const usePizzaStore = defineStore("pizza", {
   state: () => ({
     pizza: {
       name: "",
-      dough: {},
-      size: {},
-      sauce: {},
+      dough: useDataStore().getItemById(1, "doughs"),
+      size: useDataStore().getItemById(1, "sizes"),
+      sauce: useDataStore().getItemById(1, "sauces"),
       ingredients: [],
     },
   }),
@@ -17,6 +17,10 @@ export const usePizzaStore = defineStore("pizza", {
     getPizzaSauce: (state) => state.pizza.sauce,
     getPizzaDough: (state) => state.pizza.dough,
     getPizzaName: (state) => state.pizza.name,
+    getIngredientPizzaCount: (state) => (id) => {
+      const item = state.pizza.ingredients.find((item) => item.id === id);
+      return item ? item.quantity : 0;
+    }
   },
   actions: {
     // ADD Objects to pizza
@@ -29,18 +33,31 @@ export const usePizzaStore = defineStore("pizza", {
     setSauceToPizza(sauce) {
       this.pizza.sauce = sauce;
     },
-    addIngredientToPizza(ingredient) {
+    updateIngredientPizza(ingredient, count) {
       const existingIngredient = this.pizza.ingredients.find(
         (item) => item.id === ingredient.id
       );
-
       if (existingIngredient) {
-        if (existingIngredient.quantity < 3) {
-          existingIngredient.quantity += 1;
-        }
+        this.pizza.ingredients = this.pizza.ingredients.map((item) =>
+          item.id === ingredient.id ? { ...ingredient, quantity: count } : item
+        );
       } else {
-        this.pizza.ingredients.push({ ...ingredient, quantity: 1 });
+        this.pizza.ingredients.push({ ...ingredient, quantity: count });
       }
     },
+    deleteIngredientPizza(ingredientId) {
+      this.pizza.ingredients = this.pizza.ingredients.filter(
+        (item) => item.id !== ingredientId
+      );
+    },
+    clearConstructorPizza() {
+      this.pizza = {
+        name: "",
+        dough: useDataStore().getItemById(1, "doughs"),
+        size: useDataStore().getItemById(1, "sizes"),
+        sauce: useDataStore().getItemById(1, "sauces"),
+        ingredients: [],
+      }
+    }
   },
 });

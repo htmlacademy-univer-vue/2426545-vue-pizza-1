@@ -1,25 +1,20 @@
 <script setup>
 import { getDoughType } from "@/mocks/helper";
 import { computed, ref } from "vue";
-const props = defineProps({
-  doughs: {
-    type: Array,
-    required: true,
-  },
-  modelValue: {
-    type: String,
-    required: true,
-  }
-});
-const emit = defineEmits(["update:modelValue"]);
+import { usePizzaStore } from "@/stores";
+import { useDataStore } from "@/stores";
 
-const selectedDough = ref(props.modelValue);
-function selectDough(doughType) {
-  selectedDough.value = doughType;
-  emit("update:modelValue", doughType);
+const dataStore = useDataStore();
+const pizzaStore = usePizzaStore();
+const doughs = computed(() => dataStore.getDoughs);
+
+const selectedDough = ref(pizzaStore.getPizzaDough);
+function selectDough(dough) {
+  selectedDough.value = getDoughType(dough.name);
+  pizzaStore.setDoughToPizza(dough);
 }
 const isChecked = computed(() => {
-  return (doughType) => doughType === selectedDough.value;
+  return (doughType) => doughType === selectedDough.value.name;
 });
 </script>
 
@@ -28,11 +23,7 @@ const isChecked = computed(() => {
     <div class="sheet">
       <h2 class="title title--small sheet__title">Выберите тесто</h2>
 
-      <div
-        v-for="dough in props.doughs"
-        :key="dough.id"
-        class="sheet__content dough"
-      >
+      <div v-for="dough in doughs" :key="dough.id" class="sheet__content dough">
         <label
           :class="['dough__input--' + getDoughType(dough.name), 'dough__input']"
         >
@@ -40,10 +31,10 @@ const isChecked = computed(() => {
             v-model="selectedDough"
             type="radio"
             name="dough"
-            :checked="isChecked(getDoughType(dough.name))"
+            :checked="isChecked(dough.name)"
             :value="getDoughType(dough.name)"
             class=""
-            @change="selectDough(getDoughType(dough.name))"
+            @change="selectDough(dough)"
           />
           <b>{{ dough.name }}</b>
           <span>Из твердых сортов пшеницы</span>

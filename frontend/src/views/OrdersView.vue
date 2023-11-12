@@ -1,15 +1,13 @@
 <script setup>
 import OrderSection from "@/modules/order/OrderSection.vue";
+import { computed } from "vue";
+import { useCartStore } from "@/stores";
 
-// const props = defineProps({
-//   modelValue: {
-//     type: Object,
-//     required: true,
-//   },
-// });
+const cartStore = useCartStore();
 
-import ordersMock from "@/mocks/orders";
-
+const orders = computed(() => {
+  return cartStore.getOrders;
+});
 </script>
 
 <template>
@@ -17,10 +15,7 @@ import ordersMock from "@/mocks/orders";
     <div class="layout__title">
       <h1 class="title title--big">История заказов</h1>
     </div>
-    <order-section
-      v-if="ordersMock.length > 0"
-      v-model="ordersMock"
-    ></order-section>
+    <order-section v-if="orders.length > 0" v-model="orders"></order-section>
     <div v-else class="orders__empty">
       <p>Заказов пока нет</p>
     </div>
@@ -28,10 +23,10 @@ import ordersMock from "@/mocks/orders";
 </template>
 
 <style scoped lang="scss">
- .layout__content {
+.layout__content {
   display: flex;
   flex-direction: column;
   align-items: center;
-   padding-left: 0px;
- }
+  padding-left: 0;
+}
 </style>
