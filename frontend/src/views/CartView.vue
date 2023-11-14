@@ -4,8 +4,10 @@ import { getImageUrl } from "@/common/helper";
 import { useCartStore } from "@/stores";
 import { computed, ref } from "vue";
 import { useProfileStore } from "@/stores";
+import { useDataStore} from "@/stores";
 import {getIngredientNamesFromArray} from "@/mocks/helper";
 
+const dataStore = useDataStore();
 const cartStore = useCartStore();
 const profileStore = useProfileStore();
 
@@ -17,7 +19,11 @@ const addresses = computed(() => {
   return profileStore.getAddresses;
 });
 
-const selectedAddressOptrion = ref("0");
+const miscData = computed(() => {
+  return dataStore.getMisc;
+});
+
+const selectedAddressOption = ref("0");
 
 const addressNew = ref({
   type: 0,
@@ -31,8 +37,8 @@ function MorePizza(index) {
   cartStore.MorePizzaToCart(index);
 }
 
-function MoreMisc(index) {
-  cartStore.MoreMiscToCart(index);
+function MoreMisc(id) {
+  cartStore.MoreMiscToCart(id);
 }
 
 function ReduceMisc(index) {
@@ -43,15 +49,29 @@ function ReducePizza(index) {
   cartStore.ReducePizzaToCart(index);
 }
 
-function SendOrder(cart) {
-  if (selectedAddressOptrion.value === "0") {
-    alert("Выберите адрес доставки");
+function getMiscCountFromUserCart(id) {
+  const miscCart = cart.value.CartMisc.find((misc) => misc.id === id);
+  if (miscCart) {
+    return miscCart.count;
+  } else {
+    return 0;
   }
-  if (cart.CartPizzas.length === 0 && cart.CartMisc.length === 0) {
+}
+
+function SendOrder() {
+  if (selectedAddressOption.value === "0") {
+    alert("Выберите адрес доставки");
+    return;
+  }
+  if (
+    cart.value.CartPizzas.length === 0 &&
+    cart.value.CartMisc.length === 0
+  ) {
     alert("В корзине нет ни одного товара");
+    return;
   }
 
-  switch (selectedAddressOptrion.value) {
+  switch (selectedAddressOption.value) {
     case "in_store":
       cartStore.sendOrderNoAddress();
       break;
@@ -59,13 +79,13 @@ function SendOrder(cart) {
       cartStore.sendOrderNewAddress(addressNew.value);
       break;
     default:
-      cartStore.sendOrder(selectedAddressOptrion.value);
+      cartStore.sendOrder(selectedAddressOption.value);
   }
 }
 </script>
 
 <template>
-  <div class="content cart">
+  <main class="content cart">
     <div class="container">
       <div class="cart__title">
         <h1 class="title title--big">Корзина</h1>
@@ -140,13 +160,13 @@ function SendOrder(cart) {
       <div class="cart__additional">
         <ul class="additional-list">
           <li
-            v-for="(misc, index) in cart.CartMisc"
+            v-for="misc in miscData"
             :key="misc.id"
             class="additional-list__item sheet"
           >
             <p class="additional-list__description">
               <img
-                :src="getImageUrl(misc.image)"
+                :src="getImageUrl(misc.image + '.svg')"
                 width="39"
                 height="60"
                 :alt="misc.name"
@@ -159,7 +179,7 @@ function SendOrder(cart) {
                 <button
                   type="button"
                   class="counter__button counter__button--minus"
-                  @click="ReduceMisc(index)"
+                  @click="ReduceMisc(misc.id)"
                 >
                   <span class="visually-hidden">Меньше</span>
                 </button>
@@ -167,19 +187,19 @@ function SendOrder(cart) {
                   type="text"
                   name="counter"
                   class="counter__input"
-                  :value="misc.count"
+                  :value="getMiscCountFromUserCart(misc.id)"
                 />
                 <button
                   type="button"
                   class="counter__button counter__button--plus counter__button--orange"
-                  @click="MoreMisc(index)"
+                  @click="MoreMisc(misc.id)"
                 >
                   <span class="visually-hidden">Больше</span>
                 </button>
               </div>
 
               <div class="additional-list__price">
-                <b>× {{ misc.price * misc.count }} ₽</b>
+                <b>× {{ misc.price * getMiscCountFromUserCart(misc.id) }} ₽</b>
               </div>
             </div>
           </li>
@@ -191,7 +211,7 @@ function SendOrder(cart) {
           <label class="cart-form__select">
             <span class="cart-form__label">Получение заказа:</span>
 
-            <select v-model="selectedAddressOptrion" name="test" class="select">
+            <select v-model="selectedAddressOption" name="test" class="select">
               <option value="in_store">Заберу сам</option>
               <option value="new">Новый адрес</option>
               <option
@@ -206,37 +226,37 @@ function SendOrder(cart) {
 
           <label class="input input--big-label">
             <span>Контактный телефон:</span>
-            <input type="text" name="tel" placeholder="+7 (___) ___-__-__" />
+            <input type="text" name="tel" placeholder="+7 (___) ___-__-__" v-model="addressNew.phone" />
           </label>
 
-          <div v-if="selectedAddressOptrion === 'new'" class="cart-form__address">
+          <div v-if="selectedAddressOption === 'new'" class="cart-form__address">
             <span class="cart-form__label">Новый адрес:</span>
 
             <div class="cart-form__input">
               <label class="input">
                 <span>Улица*</span>
-                <input type="text" name="street" :value="addressNew.street" />
+                <input type="text" name="street" v-model="addressNew.street" />
               </label>
             </div>
 
             <div class="cart-form__input cart-form__input--small">
               <label class="input">
                 <span>Дом*</span>
-                <input type="text" name="house" :value="addressNew.building" />
+                <input type="text" name="house" v-model="addressNew.building" />
               </label>
             </div>
 
             <div class="cart-form__input cart-form__input--small">
               <label class="input">
                 <span>Квартира</span>
-                <input type="text" name="apartment" :value="addressNew.flat" />
+                <input type="text" name="apartment" v-model="addressNew.flat" />
               </label>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </main>
   <section
     v-if="cart.CartMisc.length > 0 || cart.CartPizzas.length > 0"
     class="footer"

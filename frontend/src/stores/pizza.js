@@ -19,7 +19,7 @@ export const usePizzaStore = defineStore("pizza", {
     getPizzaName: (state) => state.pizza.name,
     getIngredientPizzaCount: (state) => (id) => {
       const item = state.pizza.ingredients.find((item) => item.id === id);
-      return item ? item.quantity : 0;
+      return item ? item.count : 0;
     }
   },
   actions: {
@@ -39,10 +39,10 @@ export const usePizzaStore = defineStore("pizza", {
       );
       if (existingIngredient) {
         this.pizza.ingredients = this.pizza.ingredients.map((item) =>
-          item.id === ingredient.id ? { ...ingredient, quantity: count } : item
+          item.id === ingredient.id ? { ...ingredient, count: count } : item
         );
       } else {
-        this.pizza.ingredients.push({ ...ingredient, quantity: count });
+        this.pizza.ingredients.push({ ...ingredient, count: count });
       }
     },
     deleteIngredientPizza(ingredientId) {

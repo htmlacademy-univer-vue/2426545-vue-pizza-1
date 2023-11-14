@@ -9,7 +9,6 @@ let showAddress = ref(false);
 </script>
 
 <template>
-  <main class="layout">
     <div class="layout__content">
       <div class="layout__title">
         <h1 class="title title--big">Мои данные</h1>
@@ -26,7 +25,6 @@ let showAddress = ref(false);
         <button type="button" class="button button--border" @click="showAddress = true">Добавить новый адрес</button>
       </div>
     </div>
-  </main>
 </template>
 
 <style scoped lang="scss">

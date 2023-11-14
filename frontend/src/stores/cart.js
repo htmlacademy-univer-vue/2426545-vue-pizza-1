@@ -28,7 +28,7 @@ export const useCartStore = defineStore("cart", {
             ingredient.ingredientId,
             "ingredients"
           );
-          price += item.price * ingredient.quantity;
+          price += item.price * ingredient.count;
         }
 
         for (const misc of order.additional) {
@@ -50,7 +50,7 @@ export const useCartStore = defineStore("cart", {
           ingredient.id,
           "ingredients"
         );
-        price += item.price * ingredient.quantity;
+        price += item.price * ingredient.count;
       }
       price += pizza.sauce.price;
       price += pizza.dough.price;
@@ -112,9 +112,16 @@ export const useCartStore = defineStore("cart", {
       // TODO ADD LOGIC
     },
 
-    Reorder(orderId) {
+    Reorder(order) {
       // TODO add logic
-      console.log(orderId);
+      // get order by id and add it with new random id to orders
+
+      const orderNew = Object.assign({}, order);
+
+      orderNew.id = Math.floor(Math.random() * 1000) + 1;
+      orderNew.orderNumber = Math.floor(Math.random() * 1000) + 1;
+
+      this.orders.push(orderNew);
     },
     addPizzaFromConstructorToCart(pizza) {
       // TODO add transform data logic
@@ -144,7 +151,7 @@ export const useCartStore = defineStore("cart", {
       if (!pizza) {
         order.orderPizzas.push(pizza);
       } else {
-        pizza.quantity += 1;
+        pizza.count += 1;
       }
     },
     deletePizzaFromOrder(orderId, pizzaId) {
@@ -160,7 +167,7 @@ export const useCartStore = defineStore("cart", {
       if (!misc) {
         order.orderMisc.push(misc);
       } else {
-        misc.quantity += 1;
+        misc.count += 1;
       }
     },
     deleteMiscFromOrder(orderId, miscId) {
@@ -178,26 +185,40 @@ export const useCartStore = defineStore("cart", {
     addOnePizzaToOrder(orderId, pizzaId) {
       const order = this.orders.find((order) => order.id === orderId);
       const pizza = order.orderPizzas.find((pizza) => pizza.id === pizzaId);
-      pizza.quantity += 1;
+      pizza.count += 1;
     },
     MorePizzaToCart(index) {
-      this.cart.CartPizzas[index].quantity += 1;
+      this.cart.CartPizzas[index].count += 1;
     },
     ReducePizzaToCart(index) {
-      if (this.cart.CartPizzas[index].quantity > 1) {
-        this.cart.CartPizzas[index].quantity -= 1;
+      if (this.cart.CartPizzas[index].count > 1) {
+        this.cart.CartPizzas[index].count -= 1;
       } else {
         this.cart.CartPizzas.splice(index, 1);
       }
     },
-    MoreMiscToCart(index) {
-      this.cart.CartMisc[index].quantity += 1;
-    },
-    ReduceMiscToCart(index) {
-      if (this.cart.CartMisc[index].quantity > 1) {
-        this.cart.CartMisc[index].quantity -= 1;
+    MoreMiscToCart(id) {
+      if (!this.cart.CartMisc.find((misc) => misc.id === id)) {
+        const misc = useDataStore().getItemById(id, "misc");
+        misc.count = 1;
+        this.cart.CartMisc.push(misc);
       } else {
-        this.cart.CartMisc.splice(index, 1);
+        // if count < 3
+        if (this.cart.CartMisc.find((misc) => misc.id === id).count < 3) {
+          this.cart.CartMisc.find((misc) => misc.id === id).count += 1;
+        }
+      }
+    },
+    ReduceMiscToCart(id) {
+      if (this.cart.CartMisc.find((misc) => misc.id === id)) {
+        if (this.cart.CartMisc.find((misc) => misc.id === id).count === 1) {
+          this.cart.CartMisc.splice(
+            this.cart.CartMisc.findIndex((misc) => misc.id === id),
+            1
+          );
+        } else {
+          this.cart.CartMisc.find((misc) => misc.id === id).count -= 1;
+        }
       }
     }
   },
