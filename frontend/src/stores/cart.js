@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
+import { useDataStore } from "./data";
 
+const dataStore = useDataStore();
 export const useCartStore = defineStore("cart", {
   state: () => ({
     orders: [
@@ -48,6 +50,31 @@ export const useCartStore = defineStore("cart", {
   }),
   getters: {
     getOrders: (state) => state.orders,
+    getOrderById: (state) => (id) =>
+      state.orders.find((order) => order.id === id),
+    getOrderPrice: (state) => (id) => {
+      const order = state.orders.find((order) => order.id === id);
+      let price = 0;
+      for (const pizza of order.orderPizzas) {
+        const sauce = dataStore.getItemById(pizza.sauceId, "sauces");
+        const dough = dataStore.getItemById(pizza.doughId, "dough");
+        const size = dataStore.getItemById(pizza.sizeId, "sizes");
+        const ingredients = pizza.ingredients;
+
+        for (const ingredient of ingredients) {
+          const item = dataStore.getItemById(
+            ingredient.ingredientId,
+            "ingredients"
+          );
+          price += item.price * ingredient.quantity;
+        }
+
+        price += sauce.price;
+        price += dough.price;
+        price = price * size.multiplier;
+      }
+      return price;
+    },
   },
   actions: {
     addOrder(order) {
