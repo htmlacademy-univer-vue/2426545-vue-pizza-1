@@ -1,20 +1,26 @@
 <script setup>
-
-import {ref, watch} from "vue";
-import {MAX_INGREDIENTS} from "@/common/constants";
+import { ref, watch } from "vue";
+import { MAX_INGREDIENTS } from "@/common/constants";
 
 const props = defineProps({
   value: {
     type: Number,
     required: true,
   },
+  btnColorStyle: {
+    type: String,
+    default: "",
+  },
 });
 const emit = defineEmits(["update:value"]);
 const count = ref(props.value);
 
-watch(() => props.value, (newValue) => {
-  count.value = newValue;
-});
+watch(
+  () => props.value,
+  (newValue) => {
+    count.value = newValue;
+  }
+);
 
 function increment() {
   if (count.value < MAX_INGREDIENTS) {
@@ -30,7 +36,7 @@ function decrement() {
   }
 }
 function updateFromInput(event) {
-  const newCount = parseInt(event.target.value)
+  const newCount = parseInt(event.target.value);
   if (newCount > MAX_INGREDIENTS) {
     count.value = MAX_INGREDIENTS;
   } else if (newCount < 0) {
@@ -46,7 +52,10 @@ function updateFromInput(event) {
   <div class="counter counter--orange ingredients__counter">
     <button
       type="button"
-      class="counter__button counter__button--minus"
+      :class="[
+        'counter__button',
+        'counter__button--minus',
+      ]"
       :disabled="count === 0"
       @click="decrement"
     >
@@ -61,7 +70,11 @@ function updateFromInput(event) {
     />
     <button
       type="button"
-      class="counter__button counter__button--plus"
+      :class="[
+        'counter__button',
+        'counter__button--plus',
+        btnColorStyle === 'order' ? 'counter__button--orange' : '',
+      ]"
       :disabled="count === MAX_INGREDIENTS"
       @click="increment"
     >
