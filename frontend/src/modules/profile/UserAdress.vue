@@ -11,7 +11,7 @@ const addresses = computed(() => {
 const editingAddress = ref(null);
 
 const editAddress = (address) => {
-  editingAddress.value = { ...address };
+  editingAddress.value = address;
 };
 
 const saveAddress = () => {
@@ -21,9 +21,9 @@ const saveAddress = () => {
   }
 };
 
-// const deleteAddress = (addressId) => {
-//   userStore.deleteAddress(addressId);
-// };
+const deleteAddress = (addressId) => {
+  userStore.deleteAddress(addressId);
+};
 </script>
 
 <template>
@@ -43,9 +43,88 @@ const saveAddress = () => {
       </div>
       <template v-if="editingAddress === address">
         <!-- Форма для редактирования адреса -->
-        <input v-model="address.name" />
-        <!-- Остальные поля для редактирования -->
-        <button type="button" @click="saveAddress">Сохранить</button>
+        <form
+          class="address-form address-form--opened sheet"
+          @submit="saveAddress"
+        >
+          <div class="address-form__header">
+            <b>Новый адрес</b>
+          </div>
+
+          <div class="address-form__wrapper">
+            <div class="address-form__input">
+              <label class="input">
+                <span>Название адреса*</span>
+                <input
+                  v-model="address.name"
+                  type="text"
+                  name="addr-name"
+                  placeholder="Введите название адреса"
+                  required
+                />
+              </label>
+            </div>
+            <div class="address-form__input address-form__input--size--normal">
+              <label class="input">
+                <span>Улица*</span>
+                <input
+                  v-model="address.street"
+                  type="text"
+                  name="addr-street"
+                  placeholder="Введите название улицы"
+                  required
+                />
+              </label>
+            </div>
+            <div class="address-form__input address-form__input--size--small">
+              <label class="input">
+                <span>Дом*</span>
+                <input
+                  v-model="address.building"
+                  type="text"
+                  name="addr-house"
+                  placeholder="Введите номер дома"
+                  required
+                />
+              </label>
+            </div>
+            <div class="address-form__input address-form__input--size--small">
+              <label class="input">
+                <span>Квартира</span>
+                <input
+                  v-model="address.flat"
+                  type="text"
+                  name="addr-apartment"
+                  placeholder="Введите № квартиры"
+                />
+              </label>
+            </div>
+            <div class="address-form__input">
+              <label class="input">
+                <span>Комментарий</span>
+                <input
+                  v-model="address.comment"
+                  type="text"
+                  name="addr-comment"
+                  placeholder="Введите комментарий"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div class="address-form__buttons">
+            <button
+              type="button"
+              class="button button--transparent"
+              @click="deleteAddress(address.id)"
+            >
+              Удалить
+            </button>
+            <button type="submit" class="button" @click="saveAddress">
+              Сохранить
+            </button>
+          </div>
+        </form>
       </template>
       <template v-else>
         <!-- Отображение адреса -->

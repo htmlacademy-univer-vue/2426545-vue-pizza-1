@@ -2,6 +2,7 @@
 import OrderHeader from "@/modules/order/OrderHeader.vue";
 import OrderList from "@/modules/order/OrderList.vue";
 import {ref} from "vue";
+import {getOrderAddressStringFromAddressObj} from "../../common/helper";
 
 const props = defineProps({
   modelValue: {
@@ -25,7 +26,7 @@ const orders = ref(props.modelValue);
     <order-list :order="item"></order-list>
 
     <p class="order__address">
-      Адрес доставки: {{ item.address }}
+      Адрес доставки: {{ getOrderAddressStringFromAddressObj(item.orderAddress) }}
     </p>
   </section>
 

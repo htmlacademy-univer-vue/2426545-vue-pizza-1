@@ -1,15 +1,10 @@
 import { defineStore } from "pinia";
-import profile from "../mocks/profile.json";
-import addresses from "../mocks/addresses.json";
+import addressService from "@/services/address-service";
+import authService from "@/services/auth-service";
+import {getToken} from "@/services/token-manager";
 export const useProfileStore = defineStore("profile", {
   state: () => ({
-    profile: {
-      id: 0,
-      name: "",
-      email: "",
-      avatar: "",
-      phone: "",
-    },
+    profile: {},
     addresses: [],
   }),
   getters: {
@@ -18,54 +13,72 @@ export const useProfileStore = defineStore("profile", {
     getAddressAdd: (state) => state.addressAdd,
   },
   actions: {
-    login(email, password) {
-      // TODO add logic
-      console.log(email, password);
-      this.profile = {};
-    },
     logout() {
-      // TODO add logic
+      authService.logout();
       this.profile = {};
     },
-
     addAddress(address) {
-      // TODO add logic
-      let addressConverted = {
-        id: this.addresses.length + 1,
-        name: address.name,
-        street: address.street,
-        building: address.building,
-        flat: address.flat,
-        comment: address.comment,
-      }
-      this.addresses.push(addressConverted);
+      addressService.postAddress(address).then((r) => {
+        if (r.status !== 200) {
+          alert("Error adding address");
+          return;
+        }
+        this.addresses.push(r.data)
+      })
+
     },
 
     updateAddress(address) {
-      // TODO add logic
-      console.log(address);
+
+      addressService.putAddress(address).then((r) => {
+        if (r.status === 200 || r.status === 204) {
+          this.addresses = this.addresses.map((a) => {
+            if (a.id === address.id) {
+              return address;
+            }
+            return a;
+          })
+          return;
+        }
+        alert("Error updating address");
+      })
     },
 
     deleteAddress(addressId) {
-      // TODO add logic
-      console.log(addressId);
+      console.log(addressId)
+      addressService.deleteAddress(addressId).then((r) => {
+        console.log(r)
+        if (r.status === 200 || r.status === 204) {
+          this.addresses = this.addresses.filter((address) => {
+            return address.id !== addressId;
+          })
+          return;
+        }
+        alert("Error deleting address");
+      })
     },
 
-    fetchUserAddress(userId) {
-      // TODO add logic
-      console.log(userId);
-      if (this.addresses.length === 0) {
-        this.addresses = addresses;
+    fetchUserAddress() {
+      if (getToken() === undefined) {
+        return;
       }
-      return this.addresses;
+      addressService.getAddresses().then((r) => {
+        if (r.status !== 200) {
+          return;
+        }
+        this.addresses = r.data;
+      });
     },
     fetchUser() {
-      // TODO add logic to get token
-      if (this.profile.name === "") {
-        this.profile = profile;
+      if (getToken() === undefined) {
+        return;
       }
-
-      return this.profile;
-    }
+      authService.whoAmI().then((r) => {
+        if (r.status !== 200) {
+          return;
+        }
+        this.profile = r.data;
+      });
+    },
   },
 });

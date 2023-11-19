@@ -4,12 +4,14 @@ import { getImageUrl } from "@/common/helper";
 import { useCartStore } from "@/stores";
 import { computed, ref } from "vue";
 import { useProfileStore } from "@/stores";
-import { useDataStore} from "@/stores";
-import {getIngredientNamesFromArray} from "@/mocks/helper";
+import { useDataStore } from "@/stores";
+import { getIngredientNamesFromArray } from "@/mocks/helper";
+import router from "@/router";
 
 const dataStore = useDataStore();
 const cartStore = useCartStore();
 const profileStore = useProfileStore();
+
 
 const cart = computed(() => {
   return cartStore.getCart;
@@ -63,10 +65,7 @@ function SendOrder() {
     alert("Выберите адрес доставки");
     return;
   }
-  if (
-    cart.value.CartPizzas.length === 0 &&
-    cart.value.CartMisc.length === 0
-  ) {
+  if (cart.value.CartPizzas.length === 0 && cart.value.CartMisc.length === 0) {
     alert("В корзине нет ни одного товара");
     return;
   }
@@ -76,11 +75,17 @@ function SendOrder() {
       cartStore.sendOrderNoAddress();
       break;
     case "new":
-      cartStore.sendOrderNewAddress(addressNew.value);
+      cartStore.sendOrder(addressNew.value, addressNew.value.phone);
       break;
     default:
-      cartStore.sendOrder(selectedAddressOption.value);
+      cartStore.sendOrder(
+        addresses.value.find(
+          (address) => address.id === selectedAddressOption.value
+        ),
+        addressNew.value.phone
+      );
   }
+  router.push("/");
 }
 </script>
 
@@ -206,7 +211,10 @@ function SendOrder() {
         </ul>
       </div>
 
-      <div v-if="cart.CartMisc.length > 0 || cart.CartPizzas.length > 0" class="cart__form">
+      <div
+        v-if="cart.CartMisc.length > 0 || cart.CartPizzas.length > 0"
+        class="cart__form"
+      >
         <div class="cart-form">
           <label class="cart-form__select">
             <span class="cart-form__label">Получение заказа:</span>
@@ -226,30 +234,38 @@ function SendOrder() {
 
           <label class="input input--big-label">
             <span>Контактный телефон:</span>
-            <input type="text" name="tel" placeholder="+7 (___) ___-__-__" v-model="addressNew.phone" />
+            <input
+              v-model="addressNew.phone"
+              type="text"
+              name="tel"
+              placeholder="+7 (___) ___-__-__"
+            />
           </label>
 
-          <div v-if="selectedAddressOption === 'new'" class="cart-form__address">
+          <div
+            v-if="selectedAddressOption === 'new'"
+            class="cart-form__address"
+          >
             <span class="cart-form__label">Новый адрес:</span>
 
             <div class="cart-form__input">
               <label class="input">
                 <span>Улица*</span>
-                <input type="text" name="street" v-model="addressNew.street" />
+                <input v-model="addressNew.street" type="text" name="street" />
               </label>
             </div>
 
             <div class="cart-form__input cart-form__input--small">
               <label class="input">
                 <span>Дом*</span>
-                <input type="text" name="house" v-model="addressNew.building" />
+                <input v-model="addressNew.building" type="text" name="house" />
               </label>
             </div>
 
             <div class="cart-form__input cart-form__input--small">
               <label class="input">
                 <span>Квартира</span>
-                <input type="text" name="apartment" v-model="addressNew.flat" />
+                <input v-model="addressNew.flat" type="text" name="apartment" />
               </label>
             </div>
           </div>
@@ -262,7 +278,9 @@ function SendOrder() {
     class="footer"
   >
     <div class="footer__more">
-      <router-link class="button button--border button--arrow" to="/">Хочу еще одну</router-link>
+      <router-link class="button button--border button--arrow" to="/"
+        >Хочу еще одну</router-link
+      >
     </div>
     <p class="footer__text">
       Перейти к конструктору<br />чтоб собрать ещё одну пиццу
