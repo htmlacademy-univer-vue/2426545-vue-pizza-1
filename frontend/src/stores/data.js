@@ -1,9 +1,4 @@
 import { defineStore } from "pinia";
-import doughs from "../mocks/dough.json";
-import sizes from "../mocks/sizes.json";
-import ingredients from "../mocks/ingredients.json";
-import misc from "../mocks/misc.json";
-import sauces from "../mocks/sauces.json";
 
 import doughService from "@/services/dough-service";
 import sizeService from "@/services/size-service";
@@ -13,11 +8,11 @@ import sauceService from "@/services/sauce-service";
 
 export const useDataStore = defineStore("data", {
   state: () => ({
-    doughs: doughs,
-    sizes: sizes,
-    ingredients: ingredients,
-    misc: misc,
-    sauces: sauces,
+    doughs: [],
+    sizes: [],
+    ingredients: [],
+    misc: [],
+    sauces: [],
   }),
   getters: {
     getDoughs: (state) => state.doughs,
@@ -31,13 +26,7 @@ export const useDataStore = defineStore("data", {
   },
   actions: {
     fetchData() {
-      if (
-        !this.doughs ||
-        !this.sizes ||
-        !this.ingredients ||
-        !this.misc ||
-        !this.sauces
-      ) {
+
         doughService.getDoughs().then((r) => {
           if (r.status !== 200) return;
           this.doughs = r.data;
@@ -63,7 +52,6 @@ export const useDataStore = defineStore("data", {
             this.sauces = r.data;
           }
         })
-      }
     },
   },
 });

@@ -171,7 +171,7 @@ function SendOrder() {
           >
             <p class="additional-list__description">
               <img
-                :src="getImageUrl(misc.image + '.svg')"
+                :src="getImageUrl(misc.image)"
                 width="39"
                 height="60"
                 :alt="misc.name"

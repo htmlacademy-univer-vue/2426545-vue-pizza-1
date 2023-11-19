@@ -43,7 +43,7 @@ console.log(order.value);
     <li v-for="item in order.orderPizzas" :key="item.id" class="order__item">
       <div class="product">
         <img
-          :src="getImageUrl('product.svg')"
+          :src="getImageUrl('/public/img/product.svg')"
           class="product__img"
           width="56"
           height="56"
@@ -69,7 +69,7 @@ console.log(order.value);
   >
     <li v-for="item in order.orderMisc" :key="item.id">
       <img
-        :src="getImageUrl(item.image + '.svg')"
+        :src="getImageUrl(item.image)"
         width="20"
         height="30"
         :alt="item.name"
