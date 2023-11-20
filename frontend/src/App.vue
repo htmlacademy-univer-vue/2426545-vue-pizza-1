@@ -1,6 +1,12 @@
 <template>
   <app-layout>
-    <router-view />
+    <router-view v-slot="{ Component, route }">
+      <transition name="slide" mode="out-in">
+        <div :key="route.name">
+          <component :is="Component"></component>
+        </div>
+      </transition>
+    </router-view>
   </app-layout>
 </template>
 
@@ -27,7 +33,18 @@ void dataStore.fetchData();
 @import "@/assets/scss/app.scss";
 body {
   justify-content: center;
-  align-items: center;
+}
+.slide-enter-active {
+  transition: all 0.4s
+}
+.slide-enter {
+  opacity: 0;
+  margin-left: 90px;
+}
+.slide-leave-active {
+  transition: all 0.4s;
+  opacity: 0;
+  margin-left: -100px;
 }
 .main__wrapper {
   padding-bottom: 30px;

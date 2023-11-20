@@ -31,4 +31,10 @@ let showAddress = ref(false);
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.layout__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+</style>

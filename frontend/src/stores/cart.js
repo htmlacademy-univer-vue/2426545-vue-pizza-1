@@ -69,6 +69,7 @@ export const useCartStore = defineStore("cart", {
     getCartPrice: (state) => {
       let price = 0;
       for (const pizza of state.cart.CartPizzas) {
+        let pizzaPrice = 0;
         const sauce = useDataStore().getItemById(pizza.sauce.id, "sauces");
         const dough = useDataStore().getItemById(pizza.dough.id, "doughs");
         const size = useDataStore().getItemById(pizza.size.id, "sizes");
@@ -76,11 +77,11 @@ export const useCartStore = defineStore("cart", {
 
         for (const ingredient of ingredients) {
           const item = useDataStore().getItemById(ingredient.id, "ingredients");
-          price += item.price * ingredient.count;
+          pizzaPrice += item.price * ingredient.count;
         }
-        price += sauce.price;
-        price += dough.price;
-        price = price * size.multiplier;
+        pizzaPrice += sauce.price;
+        pizzaPrice += dough.price;
+        price += pizzaPrice * size.multiplier;
       }
 
       for (const misc of state.cart.CartMisc) {

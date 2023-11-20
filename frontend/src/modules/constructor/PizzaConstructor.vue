@@ -29,7 +29,8 @@ const selectedSauce = computed( () => {
         'pizza--foundation--' + selectedDough + '-' + selectedSauce,
       ]"
     >
-      <div class="pizza__wrapper">
+
+        <transition-group name="fade" tag="div" class="pizza__wrapper">
         <div
           v-for="item in pizza.ingredients"
           v-show="item.count > 0"
@@ -40,9 +41,41 @@ const selectedSauce = computed( () => {
             getIngredientAmountClass(item.count),
           ]"
         ></div>
-      </div>
+        </transition-group>
+
     </div>
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+
+
+/* Анимация появления */
+.fade-enter-active {
+  animation: fadeIn 0.5s;
+}
+
+/* Анимация исчезновения */
+.fade-leave-active {
+  animation: fadeOut 0.5s;
+}
+
+/* CSS-правила для анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+</style>
