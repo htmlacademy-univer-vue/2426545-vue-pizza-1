@@ -52,10 +52,7 @@ function updateFromInput(event) {
   <div class="counter counter--orange ingredients__counter">
     <button
       type="button"
-      :class="[
-        'counter__button',
-        'counter__button--minus',
-      ]"
+      :class="['counter__button', 'counter__button--minus']"
       :disabled="count === 0"
       @click="decrement"
     >

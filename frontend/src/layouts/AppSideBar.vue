@@ -17,6 +17,7 @@ export default defineComponent({
       />
     </router-link>
 
+    <main class="layout">
     <router-link
       class="layout__link"
       :class="{ 'layout__link--active': $route.path === '/user/orders' }"
@@ -30,6 +31,7 @@ export default defineComponent({
       to="/user/profile"
       >Мои данные</router-link
     >
+    </main>
   </div>
 </template>
 

@@ -1,27 +1,23 @@
 <script setup>
 import { getPizzaSize } from "@/mocks/helper";
 import { computed, ref } from "vue";
-const props = defineProps({
-  pizzaSizes: {
-    type: Array,
-    required: true,
-  },
-  modelValue: {
-    type: String,
-    required: true,
-  },
-});
+import { useDataStore } from "@/stores";
+import { usePizzaStore } from "@/stores";
 
-const emit = defineEmits(["update:modelValue"]);
-const selectedSize = ref(props.modelValue);
+const pizzaStore = usePizzaStore();
+const dataStore = useDataStore();
+
+const pizzaSizes = dataStore.getSizes;
+
+const selectedSize = ref(pizzaStore.getPizzaSize);
 
 function selectSize(size) {
-  selectedSize.value = size;
-  emit("update:modelValue", size);
+  selectedSize.value = getPizzaSize(size.name);
+  pizzaStore.setSizeToPizza(size);
 }
 
 const isChecked = computed(() => {
-  return (size) => size === selectedSize.value;
+  return (size) => size === selectedSize.value.name;
 });
 </script>
 
@@ -43,10 +39,10 @@ const isChecked = computed(() => {
             v-model="selectedSize"
             type="radio"
             name="diameter"
-            :checked="isChecked(getPizzaSize(size.name))"
+            :checked="isChecked(size.name)"
             :value="getPizzaSize(size.name)"
             class=""
-            @change="selectSize(getPizzaSize(size.name))"
+            @change="selectSize(size)"
           />
           <span>{{ size.name }}</span>
         </label>

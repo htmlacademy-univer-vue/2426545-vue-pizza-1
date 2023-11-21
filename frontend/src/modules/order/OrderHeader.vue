@@ -1,4 +1,11 @@
 <script setup>
+
+import {useCartStore} from "@/stores";
+
+
+const cartStore = useCartStore();
+
+
 const props = defineProps({
   order: {
     type: Object,
@@ -6,7 +13,12 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+
+function Reorder() {
+  cartStore.Reorder(props.order);
+}
+
+
 </script>
 
 <template>
@@ -23,7 +35,7 @@ const emit = defineEmits(["update:modelValue"]);
       <button
         type="button"
         class="button button--border"
-        @click="emit('delete:modelValue', props.order)"
+        @click="cartStore.deleteOrder(props.order.id)"
       >
         Удалить
       </button>
@@ -32,7 +44,7 @@ const emit = defineEmits(["update:modelValue"]);
       <button
         type="button"
         class="button"
-        @click="emit('repeat:modelValue', props.order)"
+        @click="Reorder"
       >
         Повторить
       </button>
