@@ -1,5 +1,9 @@
 <script setup>
-import {getImageUrl} from "@/common/helper";
+import { getImageUrl, getStringFromArrayIngredients } from "@/common/helper";
+import { useDataStore } from "@/stores";
+import { computed } from "vue";
+
+const dataStore = useDataStore();
 
 const props = defineProps({
   order: {
@@ -8,18 +12,38 @@ const props = defineProps({
   },
 });
 
+const order = computed(() => {
+  return {
+    orderPizzas: (props.order.orderPizzas || []).map((item) => {
+      return {
+        size: dataStore.getItemById(item.sizeId, "sizes"),
+        dough: dataStore.getItemById(item.doughId, "doughs"),
+        sauce: dataStore.getItemById(item.sauceId, "sauces"),
+        ingredients: (item.ingredients || []).map((item) => {
+          return {
+            ...dataStore.getItemById(item.ingredientId, "ingredients"),
+          };
+        }),
+      };
+    }),
+    orderMisc: (props.order.orderMisc || []).map((item) => {
+      return {
+        ...dataStore.getItemById(item.miscId, "misc"),
+        quantity: item.quantity,
+      };
+    }),
+  };
+});
+
+console.log(order.value);
 </script>
 
 <template>
-  <ul v-if="props.order.ordersPizzas.length > 0" class="order__list">
-    <li
-      v-for="item in props.order.ordersPizzas"
-      :key="item.id"
-      class="order__item"
-    >
+  <ul v-if="order.orderPizzas.length > 0" class="order__list">
+    <li v-for="item in order.orderPizzas" :key="item.id" class="order__item">
       <div class="product">
         <img
-            :src="getImageUrl(item.image)"
+          :src="getImageUrl('product.svg')"
           class="product__img"
           width="56"
           height="56"
@@ -28,22 +52,32 @@ const props = defineProps({
         <div class="product__text">
           <h2>{{ item.name }}</h2>
           <ul>
-            <li>{{ item.size }}, на {{ item.dough }}</li>
-            <li>Соус: {{ item.sauce }}</li>
-            <li>Начинка: {{ item.ingredients }}</li>
+            <li>{{ item.size.name }}, на {{ item.dough.name }}</li>
+            <li>Соус: {{ item.sauce.name }}</li>
+            <li>
+              Начинка: {{ getStringFromArrayIngredients(item.ingredients) }}
+            </li>
           </ul>
         </div>
       </div>
     </li>
   </ul>
 
-  <ul v-if="props.order.additional.length > 0" class="order__additional">
-    <li v-for="item in props.order.additional" :key="item.id">
-      <img :src="getImageUrl(item.image)" width="20" height="30" :alt="item.name" />
+  <ul
+    v-if="order.orderMisc && order.orderMisc.length > 0"
+    class="order__additional"
+  >
+    <li v-for="item in order.orderMisc" :key="item.id">
+      <img
+        :src="getImageUrl(item.image + '.svg')"
+        width="20"
+        height="30"
+        :alt="item.name"
+      />
       <span>{{ item.name }}</span>
       <b
         >{{ item.count }} шт x {{ item.price }} ₽ =
-        {{ item.price * item.count }} ₽</b
+        {{ item.price * item.quantity }} ₽</b
       >
     </li>
   </ul>

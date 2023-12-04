@@ -6,7 +6,7 @@
 
 <script setup>
 import AppLayout from "./layouts/AppLayout.vue";
-import { useDataStore } from "./stores";
+import { useDataStore} from "./stores";
 import { useProfileStore } from "@/stores";
 import { useCartStore } from "./stores";
 
@@ -16,8 +16,9 @@ const userStore = useProfileStore();
 
 const cartStore = useCartStore();
 
+
 void userStore.fetchUser();
-void userStore.fetchUserAddress(userStore.getProfile.id);
+void userStore.fetchUserAddress();
 void cartStore.fetchOrders();
 void dataStore.fetchData();
 

@@ -1,9 +1,16 @@
 import { defineStore } from "pinia";
-import  doughs from "../mocks/dough.json";
-import  sizes from "../mocks/sizes.json";
-import  ingredients from "../mocks/ingredients.json";
-import  misc from "../mocks/misc.json";
-import  sauces from "../mocks/sauces.json";
+import doughs from "../mocks/dough.json";
+import sizes from "../mocks/sizes.json";
+import ingredients from "../mocks/ingredients.json";
+import misc from "../mocks/misc.json";
+import sauces from "../mocks/sauces.json";
+
+import doughService from "@/services/dough-service";
+import sizeService from "@/services/size-service";
+import ingredientService from "@/services/ingredient-service";
+import miscService from "@/services/misc-service";
+import sauceService from "@/services/sauce-service";
+
 export const useDataStore = defineStore("data", {
   state: () => ({
     doughs: doughs,
@@ -24,24 +31,39 @@ export const useDataStore = defineStore("data", {
   },
   actions: {
     fetchData() {
-      if (!this.doughs || !this.sizes || !this.ingredients || !this.misc || !this.sauces) {
-        this.doughs = getData("dough.json");
-        this.sizes = getData("sizes.json");
-        this.ingredients = () => {
-          getData("ingredients.json").reduce(function (accumulator, current) {
-            accumulator[current.id] = { ...current, count: 0 };
-            return accumulator;
-          }, {});
-        };
-        this.misc = getData("misc.json");
-        this.sauces = getData("sauces.json");
+      if (
+        !this.doughs ||
+        !this.sizes ||
+        !this.ingredients ||
+        !this.misc ||
+        !this.sauces
+      ) {
+        doughService.getDoughs().then((r) => {
+          if (r.status !== 200) return;
+          this.doughs = r.data;
+        });
+        sizeService.getSizes().then((r) => {
+          if (r.status === 200) {
+            this.sizes = r.data;
+          }
+        });
+        ingredientService.getIngredients().then((r) => {
+          if (r.status === 200) {
+            this.ingredients = r.data
+          }
+        });
+
+        miscService.getMisc().then((r) => {
+          if (r.status === 200) {
+            this.misc = r.data;
+          }
+        })
+        sauceService.getSauces().then((r) => {
+          if (r.status === 200) {
+            this.sauces = r.data;
+          }
+        })
       }
-    }
+    },
   },
 });
-
-async function getData(path) {
-  // TODO Swap to server request
-  const response = await fetch(`../mocks/${path}`);
-  return await response.json();
-}

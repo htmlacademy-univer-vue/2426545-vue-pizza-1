@@ -1,9 +1,11 @@
-export default function authHeader() {
-    let user = JSON.parse(localStorage.getItem('user'));
+import { getToken } from "@/services/token-manager";
 
-    if (user && user.accessToken) {
-        return { Authorization: 'Bearer ' + user.accessToken };
-    } else {
-        return {};
-    }
+export default function authHeader() {
+  let token = getToken();
+
+  if (token) {
+    return { Authorization: "Bearer " + token };
+  } else {
+    return {};
+  }
 }

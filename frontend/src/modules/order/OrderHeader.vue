@@ -2,7 +2,6 @@
 
 import {useCartStore} from "@/stores";
 
-
 const cartStore = useCartStore();
 
 
@@ -24,11 +23,11 @@ function Reorder() {
 <template>
   <div class="order__wrapper">
     <div class="order__number">
-      <b>Заказ #{{ props.order.orderNumber }}</b>
+      <b>Заказ #{{ props.order.id }}</b>
     </div>
 
     <div class="order__sum">
-      <span>Сумма заказа: {{ props.order.sum }}₽</span>
+      <span>Сумма заказа: {{ cartStore.getOrderPrice(props.order.id) }}₽</span>
     </div>
 
     <div class="order__button">

@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { useDataStore } from "./data";
-import ordersMock from "../mocks/orders.json";
+import orderService from "@/services/order-service";
+import { useProfileStore } from "@/stores/profile";
+import {getToken} from "@/services/token-manager";
 export const useCartStore = defineStore("cart", {
   state: () => ({
     orders: [],
@@ -16,10 +18,14 @@ export const useCartStore = defineStore("cart", {
     getOrderPrice: (state) => (id) => {
       const dataStore = useDataStore();
       const order = state.orders.find((order) => order.id === id);
+      console.log(order)
       let price = 0;
+      if (order.orderPizzas === undefined) {
+        return price;
+      }
       for (const pizza of order.orderPizzas) {
         const sauce = dataStore.getItemById(pizza.sauceId, "sauces");
-        const dough = dataStore.getItemById(pizza.doughId, "dough");
+        const dough = dataStore.getItemById(pizza.doughId, "doughs");
         const size = dataStore.getItemById(pizza.sizeId, "sizes");
         const ingredients = pizza.ingredients;
 
@@ -28,11 +34,14 @@ export const useCartStore = defineStore("cart", {
             ingredient.ingredientId,
             "ingredients"
           );
-          price += item.price * ingredient.count;
+          price += item.price * ingredient.quantity;
         }
 
-        for (const misc of order.additional) {
-          price += misc.price * misc.count;
+        if (order.orderMisc && order.orderMisc.length > 0) {
+          for (const misc of order.orderMisc) {
+            const miscD = dataStore.getItemById(misc.miscId, "misc");
+            price += miscD.price * misc.quantity;
+          }
         }
 
         price += sauce.price;
@@ -46,10 +55,7 @@ export const useCartStore = defineStore("cart", {
       const ingredients = pizza.ingredients;
 
       for (const ingredient of ingredients) {
-        const item = useDataStore().getItemById(
-          ingredient.id,
-          "ingredients"
-        );
+        const item = useDataStore().getItemById(ingredient.id, "ingredients");
         price += item.price * ingredient.count;
       }
       price += pizza.sauce.price;
@@ -66,10 +72,7 @@ export const useCartStore = defineStore("cart", {
         const ingredients = pizza.ingredients;
 
         for (const ingredient of ingredients) {
-          const item = useDataStore().getItemById(
-            ingredient.id,
-            "ingredients"
-          );
+          const item = useDataStore().getItemById(ingredient.id, "ingredients");
           price += item.price * ingredient.count;
         }
         price += sauce.price;
@@ -86,42 +89,103 @@ export const useCartStore = defineStore("cart", {
   },
   actions: {
     fetchOrders() {
-      // TODO add logic
-      if (this.orders.length === 0) {
-        this.orders = ordersMock;
+      if (getToken() === undefined) {
+        return;
       }
-      return this.orders;
+      orderService.getOrders().then((r) => {
+        console.log(r);
+        if (r.status !== 200) {
+          return;
+        }
+        this.orders = r.data;
+      });
     },
-
-    sendOrder(address) {
-      // TODO ADD LOGIC
-
-      console.log(address);
-
-      // GET USER INFO
-      // TRANSFORM PIZZA AND MISC TO ORDER
-      // ADD ADDRESS TO OBJECT
-      // SEND
-
+    clearCart() {
+      this.cart = {
+        CartPizzas: [],
+        CartMisc: [],
+      };
     },
-    sendOrderNewAddress(address) {
-      // TODO ADD LOGIC
+    sendOrder(address, phone) {
       console.log(address);
+      const user = useProfileStore().getProfile;
+
+      const pizzasFromStore = this.getCart.CartPizzas;
+      let pizzasRequest = [];
+      for (const pizza of pizzasFromStore) {
+        let pizzaRequest = {
+          name: pizza.name,
+          sauceId: pizza.sauce.id,
+          doughId: pizza.dough.id,
+          sizeId: pizza.size.id,
+          quantity: pizza.count,
+          ingredients: [],
+        };
+        for (const ingredient of pizza.ingredients) {
+          pizzaRequest.ingredients.push({
+            ingredientId: ingredient.id,
+            quantity: ingredient.count,
+          });
+        }
+        pizzasRequest.push(pizzaRequest);
+      }
+
+      const miscFromStore = this.getCart.CartMisc;
+      let miscRequest = [];
+      for (const misc of miscFromStore) {
+        miscRequest.push({
+          miscId: misc.id,
+          quantity: misc.count,
+        });
+      }
+
+      const order = {
+        userId: user.id,
+        phone: phone,
+        address: {
+          street: address.street,
+          building: address.building,
+          flat: address.flat,
+          comment: address.comment,
+        },
+        pizzas: pizzasRequest,
+        misc: miscRequest,
+      };
+
+      console.log(order);
+      orderService.postOrder(order).then((r) => {
+        console.log(r);
+        if (r.status !== 200) {
+          alert("Error sending order");
+          return;
+        }
+        this.fetchOrders();
+        useCartStore().clearCart();
+      });
     },
     sendOrderNoAddress() {
       // TODO ADD LOGIC
     },
 
     Reorder(order) {
-      // TODO add logic
-      // get order by id and add it with new random id to orders
+      console.log(order);
+      const orderNew = {
+        userId: order.userId,
+        phone: order.phone,
+        address: order.orderAddress,
+        pizzas: order.orderPizzas,
+        misc: order.orderMisc,
+      };
 
-      const orderNew = Object.assign({}, order);
-
-      orderNew.id = Math.floor(Math.random() * 1000) + 1;
-      orderNew.orderNumber = Math.floor(Math.random() * 1000) + 1;
-
-      this.orders.push(orderNew);
+      console.log(orderNew);
+      orderService.postOrder(orderNew).then((r) => {
+        console.log(r);
+        if (r.status !== 200) {
+          alert("Error reorder order");
+          return;
+        }
+        this.orders.push(r.data);
+      });
     },
     addPizzaFromConstructorToCart(pizza) {
       // TODO add transform data logic
@@ -137,7 +201,15 @@ export const useCartStore = defineStore("cart", {
       this.orders.push(order);
     },
     deleteOrder(id) {
-      this.orders = this.orders.filter((order) => order.id !== id);
+      console.log(id);
+      orderService.deleteOrder(id).then((r) => {
+        console.log(r);
+        if (r.status === 200 || r.status === 204) {
+          this.fetchOrders();
+        } else {
+          alert("Error deleting order");
+        }
+      });
     },
     clearOrders() {
       this.orders = [];
@@ -220,6 +292,6 @@ export const useCartStore = defineStore("cart", {
           this.cart.CartMisc.find((misc) => misc.id === id).count -= 1;
         }
       }
-    }
+    },
   },
 });
