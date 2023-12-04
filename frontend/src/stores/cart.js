@@ -54,6 +54,9 @@ export const useCartStore = defineStore("cart", {
       let price = 0;
       const ingredients = pizza.ingredients;
 
+      if (pizza.ingredients === undefined || pizza.ingredients.length === 0) {
+        return price;
+      }
       for (const ingredient of ingredients) {
         const item = useDataStore().getItemById(ingredient.id, "ingredients");
         price += item.price * ingredient.count;
@@ -192,7 +195,7 @@ export const useCartStore = defineStore("cart", {
       // TODO add validation
       pizza.count = 1;
       pizza.id = pizza.doughId + pizza.sizeId + pizza.sauceId;
-      pizza.image = "product.svg";
+      pizza.image = "public/img/product.svg";
       this.cart.CartPizzas.push(pizza);
     },
 

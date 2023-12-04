@@ -1,5 +1,7 @@
 export function getImageUrl (path) {
-    return new URL(`/src/assets/img/${path}`, import.meta.url).href;
+    const publicUrl = '/api'
+    return `${publicUrl}${path}`
+    // return new URL(`/src/assets/img/${path}`, import.meta.url).href;
 }
 
 export function getStringFromArrayIngredients(ingredients) {
