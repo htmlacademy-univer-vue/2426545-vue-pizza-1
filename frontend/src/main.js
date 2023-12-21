@@ -18,10 +18,9 @@ const token = getToken();
 if (token) {
   try {
     const authStore = useAuthStore();
-    authStore.getMe().then(r => console.log(r));
-    router.push("/").then(r => console.log(r));
+    authStore.getMe().then();
+    router.push("/").then();
   } catch (e) {
     removeToken();
-    console.log(e);
   }
 }

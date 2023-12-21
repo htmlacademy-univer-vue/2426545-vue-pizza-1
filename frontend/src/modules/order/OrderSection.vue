@@ -1,7 +1,7 @@
 <script setup>
 import OrderHeader from "@/modules/order/OrderHeader.vue";
 import OrderList from "@/modules/order/OrderList.vue";
-import {ref} from "vue";
+import {computed} from "vue";
 import {getOrderAddressStringFromAddressObj} from "../../common/helper";
 
 const props = defineProps({
@@ -11,8 +11,10 @@ const props = defineProps({
   },
 });
 
-const orders = ref(props.modelValue);
-
+// const orders = ref(props.modelValue);
+const orders = computed(() => {
+  return props.modelValue;
+});
 
 </script>
 

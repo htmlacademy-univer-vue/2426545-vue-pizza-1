@@ -74,7 +74,7 @@ function SendOrder() {
       cartStore.sendOrderNoAddress();
       break;
     case "new":
-      cartStore.sendOrder(addressNew.value, addressNew.value.phone);
+      cartStore.sendOrderWithNew(addressNew.value, addressNew.value.phone);
       break;
     default:
       cartStore.sendOrder(

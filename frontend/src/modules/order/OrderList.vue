@@ -35,7 +35,6 @@ const order = computed(() => {
   };
 });
 
-console.log(order.value);
 </script>
 
 <template>

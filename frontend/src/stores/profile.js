@@ -21,11 +21,12 @@ export const useProfileStore = defineStore("profile", {
       addressService.postAddress(address).then((r) => {
         if (r.status !== 200) {
           alert("Error adding address");
-          return;
+          return false;
         }
         this.addresses.push(r.data)
       })
 
+      return true
     },
 
     updateAddress(address) {
@@ -45,9 +46,7 @@ export const useProfileStore = defineStore("profile", {
     },
 
     deleteAddress(addressId) {
-      console.log(addressId)
       addressService.deleteAddress(addressId).then((r) => {
-        console.log(r)
         if (r.status === 200 || r.status === 204) {
           this.addresses = this.addresses.filter((address) => {
             return address.id !== addressId;
