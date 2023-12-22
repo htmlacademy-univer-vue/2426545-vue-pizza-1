@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { useDataStore } from "./data";
 import orderService from "@/services/order-service";
 import { useProfileStore } from "@/stores/profile";
-import {getToken} from "@/services/token-manager";
+import { getToken } from "@/services/token-manager";
 export const useCartStore = defineStore("cart", {
   state: () => ({
     orders: [],
@@ -18,7 +18,6 @@ export const useCartStore = defineStore("cart", {
     getOrderPrice: (state) => (id) => {
       const dataStore = useDataStore();
       const order = state.orders.find((order) => order.id === id);
-      console.log(order)
       let price = 0;
       if (order.orderPizzas === undefined) {
         return price;
@@ -69,6 +68,7 @@ export const useCartStore = defineStore("cart", {
     getCartPrice: (state) => {
       let price = 0;
       for (const pizza of state.cart.CartPizzas) {
+        let pizzaPrice = 0;
         const sauce = useDataStore().getItemById(pizza.sauce.id, "sauces");
         const dough = useDataStore().getItemById(pizza.dough.id, "doughs");
         const size = useDataStore().getItemById(pizza.size.id, "sizes");
@@ -76,11 +76,11 @@ export const useCartStore = defineStore("cart", {
 
         for (const ingredient of ingredients) {
           const item = useDataStore().getItemById(ingredient.id, "ingredients");
-          price += item.price * ingredient.count;
+          pizzaPrice += item.price * ingredient.count;
         }
-        price += sauce.price;
-        price += dough.price;
-        price = price * size.multiplier;
+        pizzaPrice += sauce.price;
+        pizzaPrice += dough.price;
+        price += pizzaPrice * size.multiplier;
       }
 
       for (const misc of state.cart.CartMisc) {
@@ -96,7 +96,6 @@ export const useCartStore = defineStore("cart", {
         return;
       }
       orderService.getOrders().then((r) => {
-        console.log(r);
         if (r.status !== 200) {
           return;
         }
@@ -110,7 +109,6 @@ export const useCartStore = defineStore("cart", {
       };
     },
     sendOrder(address, phone) {
-      console.log(address);
       const user = useProfileStore().getProfile;
 
       const pizzasFromStore = this.getCart.CartPizzas;
@@ -154,24 +152,126 @@ export const useCartStore = defineStore("cart", {
         pizzas: pizzasRequest,
         misc: miscRequest,
       };
-
-      console.log(order);
       orderService.postOrder(order).then((r) => {
-        console.log(r);
         if (r.status !== 200) {
           alert("Error sending order");
           return;
         }
         this.fetchOrders();
-        useCartStore().clearCart();
+        this.clearCart();
       });
     },
-    sendOrderNoAddress() {
-      // TODO ADD LOGIC
+    sendOrderWithNew(address, phone) {
+      const user = useProfileStore().getProfile;
+
+      address.name = "Новый адрес";
+
+      let ok = useProfileStore().addAddress(address);
+
+      if (!ok) {
+        return;
+      }
+
+      const pizzasFromStore = this.getCart.CartPizzas;
+      let pizzasRequest = [];
+      for (const pizza of pizzasFromStore) {
+        let pizzaRequest = {
+          name: pizza.name,
+          sauceId: pizza.sauce.id,
+          doughId: pizza.dough.id,
+          sizeId: pizza.size.id,
+          quantity: pizza.count,
+          ingredients: [],
+        };
+        for (const ingredient of pizza.ingredients) {
+          pizzaRequest.ingredients.push({
+            ingredientId: ingredient.id,
+            quantity: ingredient.count,
+          });
+        }
+        pizzasRequest.push(pizzaRequest);
+      }
+
+      const miscFromStore = this.getCart.CartMisc;
+      let miscRequest = [];
+      for (const misc of miscFromStore) {
+        miscRequest.push({
+          miscId: misc.id,
+          quantity: misc.count,
+        });
+      }
+
+      const order = {
+        userId: user.id,
+        phone: phone,
+        address: {
+          street: address.street,
+          building: address.building,
+          flat: address.flat,
+          comment: address.comment,
+        },
+        pizzas: pizzasRequest,
+        misc: miscRequest,
+      };
+      orderService.postOrder(order).then((r) => {
+        if (r.status !== 200) {
+          alert("Error sending order");
+          return;
+        }
+        this.fetchOrders();
+        this.clearCart();
+      });
+    },
+    sendOrderNoAddress(phone) {
+      const user = useProfileStore().getProfile;
+
+      const pizzasFromStore = this.getCart.CartPizzas;
+      let pizzasRequest = [];
+      for (const pizza of pizzasFromStore) {
+        let pizzaRequest = {
+          name: pizza.name,
+          sauceId: pizza.sauce.id,
+          doughId: pizza.dough.id,
+          sizeId: pizza.size.id,
+          quantity: pizza.count,
+          ingredients: [],
+        };
+        for (const ingredient of pizza.ingredients) {
+          pizzaRequest.ingredients.push({
+            ingredientId: ingredient.id,
+            quantity: ingredient.count,
+          });
+        }
+        pizzasRequest.push(pizzaRequest);
+      }
+
+      const miscFromStore = this.getCart.CartMisc;
+      let miscRequest = [];
+      for (const misc of miscFromStore) {
+        miscRequest.push({
+          miscId: misc.id,
+          quantity: misc.count,
+        });
+      }
+
+      const order = {
+        userId: user.id,
+        phone: phone,
+        pizzas: pizzasRequest,
+        misc: miscRequest,
+      };
+
+      orderService.postOrder(order).then((r) => {
+        if (r.status !== 200) {
+          alert("Error sending order");
+          return;
+        }
+        this.fetchOrders();
+        this.clearCart();
+      });
     },
 
     Reorder(order) {
-      console.log(order);
       const orderNew = {
         userId: order.userId,
         phone: order.phone,
@@ -180,9 +280,7 @@ export const useCartStore = defineStore("cart", {
         misc: order.orderMisc,
       };
 
-      console.log(orderNew);
       orderService.postOrder(orderNew).then((r) => {
-        console.log(r);
         if (r.status !== 200) {
           alert("Error reorder order");
           return;
@@ -198,69 +296,14 @@ export const useCartStore = defineStore("cart", {
       pizza.image = "public/img/product.svg";
       this.cart.CartPizzas.push(pizza);
     },
-
-    addOrder(order) {
-      // TODO add validation
-      this.orders.push(order);
-    },
     deleteOrder(id) {
-      console.log(id);
       orderService.deleteOrder(id).then((r) => {
-        console.log(r);
         if (r.status === 200 || r.status === 204) {
           this.fetchOrders();
         } else {
           alert("Error deleting order");
         }
       });
-    },
-    clearOrders() {
-      this.orders = [];
-    },
-    addPizzaToOrder(orderId, pizza) {
-      const order = this.orders.find((order) => order.id === orderId);
-      pizza = order.orderPizzas.find(
-        (orderPizza) => orderPizza.id === pizza.id
-      );
-
-      if (!pizza) {
-        order.orderPizzas.push(pizza);
-      } else {
-        pizza.count += 1;
-      }
-    },
-    deletePizzaFromOrder(orderId, pizzaId) {
-      const order = this.orders.find((order) => order.id === orderId);
-      order.orderPizzas = order.orderPizzas.filter(
-        (pizza) => pizza.id !== pizzaId
-      );
-    },
-    addMiscToOrder(orderId, misc) {
-      const order = this.orders.find((order) => order.id === orderId);
-      misc = order.orderMisc.find((orderMisc) => orderMisc.id === misc.id);
-
-      if (!misc) {
-        order.orderMisc.push(misc);
-      } else {
-        misc.count += 1;
-      }
-    },
-    deleteMiscFromOrder(orderId, miscId) {
-      const order = this.orders.find((order) => order.id === orderId);
-      order.orderMisc = order.orderMisc.filter((misc) => misc.id !== miscId);
-    },
-    addAddressToOrder(orderId, address) {
-      const order = this.orders.find((order) => order.id === orderId);
-      order.orderAddress = address;
-    },
-    deleteAddressFromOrder(orderId) {
-      const order = this.orders.find((order) => order.id === orderId);
-      order.orderAddress = {};
-    },
-    addOnePizzaToOrder(orderId, pizzaId) {
-      const order = this.orders.find((order) => order.id === orderId);
-      const pizza = order.orderPizzas.find((pizza) => pizza.id === pizzaId);
-      pizza.count += 1;
     },
     MorePizzaToCart(index) {
       this.cart.CartPizzas[index].count += 1;

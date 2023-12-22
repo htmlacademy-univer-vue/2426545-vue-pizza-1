@@ -20,7 +20,6 @@ class AuthService {
     return axios
       .delete(API_URL + "logout", { headers: authHeader() })
       .then((response) => {
-        console.log(response);
         if (response.status === 200 || response.status === 204) {
           removeToken();
           return response.data;

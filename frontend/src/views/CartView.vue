@@ -12,7 +12,6 @@ const dataStore = useDataStore();
 const cartStore = useCartStore();
 const profileStore = useProfileStore();
 
-
 const cart = computed(() => {
   return cartStore.getCart;
 });
@@ -75,7 +74,7 @@ function SendOrder() {
       cartStore.sendOrderNoAddress();
       break;
     case "new":
-      cartStore.sendOrder(addressNew.value, addressNew.value.phone);
+      cartStore.sendOrderWithNew(addressNew.value, addressNew.value.phone);
       break;
     default:
       cartStore.sendOrder(
@@ -273,28 +272,42 @@ function SendOrder() {
       </div>
     </div>
   </main>
-  <section
-    v-if="cart.CartMisc.length > 0 || cart.CartPizzas.length > 0"
-    class="footer"
-  >
-    <div class="footer__more">
-      <router-link class="button button--border button--arrow" to="/"
-        >Хочу еще одну</router-link
-      >
-    </div>
-    <p class="footer__text">
-      Перейти к конструктору<br />чтоб собрать ещё одну пиццу
-    </p>
-    <div class="footer__price">
-      <b>Итого: {{ cartStore.getCartPrice }} ₽</b>
-    </div>
+  <transition name="slide">
+    <section
+      v-show="cart.CartMisc.length > 0 || cart.CartPizzas.length > 0"
+      class="footer"
+    >
+      <div class="footer__more">
+        <router-link class="button button--border button--arrow" to="/"
+          >Хочу еще одну</router-link
+        >
+      </div>
+      <p class="footer__text">
+        Перейти к конструктору<br />чтоб собрать ещё одну пиццу
+      </p>
+      <div class="footer__price">
+        <b>Итого: {{ cartStore.getCartPrice }} ₽</b>
+      </div>
 
-    <div class="footer__submit">
-      <button type="button" class="button" @click="SendOrder">
-        Оформить заказ
-      </button>
-    </div>
-  </section>
+      <div class="footer__submit">
+        <button type="button" class="button" @click="SendOrder">
+          Оформить заказ
+        </button>
+      </div>
+    </section>
+  </transition>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.slide-enter-active {
+  transition: transform 0.2s;
+}
+
+.slide-enter {
+  transform: translateY(100%);
+}
+
+.slide-enter-to {
+  transform: translateY(0);
+}
+</style>

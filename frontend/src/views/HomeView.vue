@@ -56,9 +56,9 @@ function addPizzaToCart() {
               <div class="ingredients__filling">
                 <p>Начинка:</p>
 
-                <ul class="ingredients__list">
+
                   <ingredients-picker></ingredients-picker>
-                </ul>
+
               </div>
             </div>
           </div>

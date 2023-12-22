@@ -15,6 +15,7 @@ export const useAuthStore = defineStore("auth", {
       try {
         const data = await authService.login({ email, password });
         setToken(data.token);
+        await this.getMe();
         return "ok";
       } catch (e) {
         return e.message;
